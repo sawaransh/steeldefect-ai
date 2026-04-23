@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steel Defect AI — Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #1a1d24;
+    --border: #2a2d35;
+    --accent: #e86c2f;
+    --accent2: #f0a060;
+    --blue: #4a9eff;
+    --green: #3ecf8e;
+    --purple: #a78bfa;
+    --text: #e8eaf0;
+    --text-muted: #7a7f8e;
+    --text-dim: #4a4f5e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── TOP BAR ─────────────────────────────────────── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 40px;
+    background: rgba(10,12,16,0.9);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .logo-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  .slide-counter {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .slide-counter .current {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .progress-track {
+    width: 160px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* ─── SLIDE WRAPPER ───────────────────────────────── */
+  .slide-wrapper {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 48px 64px 80px;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-60px);
+    pointer-events: none;
+  }
+
+  /* ─── NAVIGATION ARROWS ──────────────────────────── */
+  .nav-arrows {
+    position: fixed;
+    bottom: 28px;
+    right: 40px;
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+  }
+
+  .arrow-btn {
+    width: 44px; height: 44px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-family: 'DM Mono', monospace;
+    user-select: none;
+  }
+
+  .arrow-btn:hover:not(:disabled) {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232,108,47,0.3);
+  }
+
+  .arrow-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  /* ─── SLIDE CONTENT COMPONENTS ───────────────────── */
+  .slide-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .slide-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 20px; height: 1px;
+    background: var(--accent);
+  }
+
+  .slide-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 42px;
+    line-height: 1.1;
+    letter-spacing: -1.2px;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .slide-title em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .slide-subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    max-width: 640px;
+    margin-bottom: 32px;
+  }
+
+  /* ─── CARDS ───────────────────────────────────────── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+  .card-icon { font-size: 26px; margin-bottom: 12px; display: block; }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .card-body {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ─── BULLET LIST ─────────────────────────────────── */
+  .bullet-list {
+    list-style: none;
+    margin-bottom: 20px;
+  }
+
+  .bullet-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 12px;
+    line-height: 1.55;
+  }
+
+  .bullet-list li:last-child { border-bottom: none; }
+
+  .bullet-list li::before {
+    content: '→';
+    color: var(--accent);
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    margin-top: 1px;
+  }
+
+  /* ─── SPEECH BOX ──────────────────────────────────── */
+  .speech-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  .speech-box::before {
+    content: '" ';
+    color: var(--accent);
+    font-style: normal;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 0;
+    vertical-align: -4px;
+  }
+
+  /* ─── STATS ROW ───────────────────────────────────── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 32px;
+    color: var(--accent);
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── TABLE ───────────────────────────────────────── */
+  .doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .doc-table th {
+    background: var(--surface2);
+    padding: 10px 14px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .doc-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .doc-table tr:hover td { background: var(--surface); }
+
+  .doc-table td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 11.5px;
+    color: var(--accent2);
+  }
+
+  /* ─── PIPELINE ────────────────────────────────────── */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 20px 0;
+    margin-bottom: 20px;
+  }
+
+  .pipe-step { flex-shrink: 0; text-align: center; }
+
+  .pipe-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    min-width: 110px;
+    transition: all 0.2s;
+  }
+
+  .pipe-box:hover {
+    border-color: var(--accent);
+    background: rgba(232,108,47,0.05);
+    transform: translateY(-3px);
+  }
+
+  .pipe-icon { font-size: 22px; margin-bottom: 7px; }
+  .pipe-label { font-size: 11.5px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .pipe-sub { font-size: 9.5px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+  .pipe-arrow { color: var(--text-dim); font-size: 18px; padding: 0 6px; flex-shrink: 0; }
+
+  /* ─── CALLOUT ─────────────────────────────────────── */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(232,108,47,0.06);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  .callout.blue { border-color: var(--blue); background: rgba(74,158,255,0.06); }
+  .callout.green { border-color: var(--green); background: rgba(62,207,142,0.06); }
+  .callout strong { color: var(--text); }
+
+  /* ─── PERSON AVATAR COLOURS ───────────────────────── */
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .p1 { background: rgba(232,108,47,0.15); color: var(--accent); }
+  .p2 { background: rgba(74,158,255,0.15);  color: var(--blue); }
+  .p3 { background: rgba(62,207,142,0.15);  color: var(--green); }
+  .p4 { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .p5 { background: rgba(240,160,96,0.15);  color: var(--accent2); }
+
+  /* ─── STEPS ───────────────────────────────────────── */
+  .steps { margin-bottom: 20px; }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  .step-num {
+    width: 32px; height: 32px;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 13px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .step:hover .step-num {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .step-title { font-weight: 600; font-size: 14px; color: var(--text); margin-bottom: 4px; }
+  .step-body { font-size: 12.5px; color: var(--text-muted); line-height: 1.6; }
+
+  /* ─── TWO-COL LAYOUT ──────────────────────────────── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-title span {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(232,108,47,0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 400;
+  }
+
+  /* ─── SECTION LABEL ──────────────────────────────── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    margin-top: 20px;
+  }
+
+  /* ─── ARCH LAYER ─────────────────────────────────── */
+  .arch-layer {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    margin: 6px auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 100%;
+    transition: all 0.2s;
+  }
+
+  .arch-layer:hover { border-color: var(--accent); }
+  .arch-layer.highlight { border-color: var(--accent); background: rgba(232,108,47,0.06); }
+  .arch-layer.blue { border-color: var(--blue); background: rgba(74,158,255,0.06); }
+  .arch-layer.green { border-color: var(--green); background: rgba(62,207,142,0.06); }
+
+  .arch-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: var(--text); }
+  .arch-detail { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); }
+  .arch-arrow { font-size: 12px; color: var(--text-dim); text-align: center; margin: 2px 0; }
+
+  /* ─── TAG ────────────────────────────────────────── */
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: var(--surface);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .tag.accent { border-color: var(--accent); color: var(--accent); background: rgba(232,108,47,0.06); }
+  .tag.blue { border-color: var(--blue); color: var(--blue); background: rgba(74,158,255,0.06); }
+  .tag.green { border-color: var(--green); color: var(--green); background: rgba(62,207,142,0.06); }
+
+  .tags-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+
+  /* ─── GLOW BG ─────────────────────────────────────── */
+  .glow {
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(232,108,47,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+  }
+
+  /* ─── SCROLLBAR ───────────────────────────────────── */
+  .slide::-webkit-scrollbar { width: 4px; }
+  .slide::-webkit-scrollbar-track { background: transparent; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ─── KEYBOARD HINT ──────────────────────────────── */
+  .kbd-hint {
+    position: fixed;
+    bottom: 36px;
+    left: 40px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .kbd {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text);
+    margin-bottom: 14px;
+    margin-top: 24px;
+  }
+
+  h2:first-of-type { margin-top: 0; }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--accent2);
+  }
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ─────────────────────────────────────────── -->
+<div class="topbar">
+  <div class="logo-badge">
+    <div class="logo-icon">🔩</div>
+    <div>
+      <div class="logo-text">SteelDefect AI</div>
+      <div class="logo-sub">PRESENTATION DECK</div>
+    </div>
+  </div>
+  <div class="slide-counter">
+    <span class="current" id="slideNumDisplay">01</span>
+    <span>/ 05</span>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:20%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SLIDES ──────────────────────────────────────────── -->
+<div class="slide-wrapper">
+
+  <!-- SLIDE 1: Introduction & Problem Statement -->
+  <div class="slide active" data-slide="1">
+    <div class="glow"></div>
+    <div class="slide-eyebrow">P1 · Introduction & Problem Statement</div>
+    <div class="slide-title">Steel Surface<br><em>Defect Classification</em></div>
+    <div class="slide-subtitle">An end-to-end industrial AI system that detects and classifies 6 types of steel surface defects using Transfer Learning with ResNet50 — complete with Grad-CAM explainability.</div>
+
+    <div class="tags-row">
+      <span class="tag accent">ResNet50</span>
+      <span class="tag blue">TensorFlow 2.x</span>
+      <span class="tag green">Grad-CAM</span>
+      <span class="tag">Transfer Learning</span>
+      <span class="tag">NEU-DET Dataset</span>
+      <span class="tag">Python 3.12</span>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num">98.3%</div>
+        <div class="stat-label">Test Accuracy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">1,800</div>
+        <div class="stat-label">Training Images</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Defect Classes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">50</div>
+        <div class="stat-label">ResNet Layers</div>
+      </div>
+    </div>
+
+    <div class="callout blue">
+      <strong>Simple Explanation:</strong> This project is an AI system that looks at a photo of a steel plate and tells you exactly what kind of surface defect it has — and shows you WHERE the defect is using a colour heatmap. Over 90% of steel product flaws are surface defects.
+    </div>
+
+    <div class="section-label">The Problem It Solves</div>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-icon">😴</span>
+        <div class="card-title">Human Fatigue</div>
+        <div class="card-body">Inspectors get tired checking thousands of plates daily. Fatigue causes missed defects that reach customers.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">🐢</span>
+        <div class="card-title">Slow Speed</div>
+        <div class="card-body">Manual inspection limits throughput. AI checks each image in under 100 milliseconds.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">❓</span>
+        <div class="card-title">No Explanation</div>
+        <div class="card-body">Most AI models give answers without showing why. Grad-CAM shows exactly which part triggered the decision.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">💸</span>
+        <div class="card-title">High Cost</div>
+        <div class="card-body">Defective products that pass inspection cause costly recalls. AI provides consistent 98.3% accuracy.</div>
+      </div>
+    </div>
+
+    <div class="section-label">The 6 Defect Classes</div>
+    <table class="doc-table">
+      <thead>
+        <tr><th>Class</th><th>What It Looks Like</th><th>Real World Risk</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>crazing</td><td>Network of fine crack lines across the surface</td><td>Structural weakness, fracture risk</td></tr>
+        <tr><td>inclusion</td><td>Foreign material embedded inside the steel</td><td>Contamination, reduced strength</td></tr>
+        <tr><td>patches</td><td>Irregular blotchy discoloured regions</td><td>Corrosion vulnerability</td></tr>
+        <tr><td>pitted_surface</td><td>Small holes or pits across the surface</td><td>Stress concentration points</td></tr>
+        <tr><td>rolled-in_scale</td><td>Dark patches from oxidised steel during rolling</td><td>Surface quality failure</td></tr>
+        <tr><td>scratches</td><td>Linear marks from mechanical contact</td><td>Surface damage, cosmetic failure</td></tr>
+      </tbody>
+    </table>
+
+    <div class="speech-box">
+      Our project solves a real factory problem. Humans get tired checking thousands of steel plates every day. We built an AI system that looks at any steel plate photo and instantly tells you what type of defect it has — and shows you exactly where it found it. This can prevent costly product recalls and safety failures.
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Dataset & Preprocessing -->
+  <div class="slide" data-slide="2">
+    <div class="glow"></div>
+    <div class="slide-eyebrow">P2 · Dataset & Preprocessing</div>
+    <div class="slide-title">Data Story &<br><em>Technical Foundation</em></div>
+    <div class="slide-subtitle">Understanding the NEU-DET dataset, how we prepared it, and why the preprocessing pipeline was the single biggest accuracy improvement.</div>
+
+    <div class="section-label">Dataset at a Glance</div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num">1,800</div>
+        <div class="stat-label">Total Images</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Classes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">300</div>
+        <div class="stat-label">Per Class</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">50/50</div>
+        <div class="stat-label">Val → Val+Test Split</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-title">Dataset Split <span>NEU-DET</span></div>
+        <ul class="bullet-list">
+          <li>Pre-divided train and validation folders in the dataset</li>
+          <li>Programmatically split validation 50/50 into val and test — no files moved on disk</li>
+          <li>Stratified split ensures equal class representation in each half</li>
+          <li>Perfectly balanced: 300 images per class, no class imbalance</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Preprocessing Steps <span>PIPELINE</span></div>
+        <ul class="bullet-list">
+          <li>Grayscale → RGB conversion (ResNet50 requires 3-channel input)</li>
+          <li>Resize to 224×224 pixels (ResNet50's native input size)</li>
+          <li>Normalization: pixel values 0–255 → 0.0–1.0</li>
+          <li>CLAHE applied to enhance fine crack and texture visibility</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>CLAHE (Contrast Limited Adaptive Histogram Equalization):</strong> Divides the image into small tiles and equalises each independently, boosting local contrast. This makes subtle surface textures — especially fine cracks and pitting — much more visible to the network.
+    </div>
+
+    <div class="section-label">Augmentation Strategy</div>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-icon">🔄</span>
+        <div class="card-title">Rotation ±20°</div>
+        <div class="card-body">Defects appear at any orientation on the production line. Random rotation makes the model orientation-invariant.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">↔️</span>
+        <div class="card-title">Horizontal Flip</div>
+        <div class="card-body">Doubles effective training data by mirroring images, helping the model generalise to unseen orientations.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">🔦</span>
+        <div class="card-title">Brightness Shift</div>
+        <div class="card-body">Simulates factory lighting variation. Prevents the model from relying on absolute brightness as a feature.</div>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <strong>Key Insight:</strong> Aligning preprocessing exactly with ResNet50's expectations — correct normalization and RGB channel order — was what took us from ~65% to 98% accuracy. Preprocessing was the single biggest lever.
+    </div>
+
+    <div class="speech-box">
+      We prepared the images carefully before feeding them to the model. The key challenge was that the images were grayscale but ResNet50 expects 3-colour RGB input. We converted them and also applied CLAHE to enhance texture contrast. Aligning our preprocessing exactly with ResNet50's expectations was what took us from 65% to 98% accuracy.
+    </div>
+  </div>
+
+  <!-- SLIDE 3: Model & Architecture -->
+  <div class="slide" data-slide="3">
+    <div class="glow"></div>
+    <div class="slide-eyebrow">P3 · Model & Architecture</div>
+    <div class="slide-title">Technical Heart &<br><em>Architecture Explained</em></div>
+    <div class="slide-subtitle">Transfer Learning with ResNet50 — why we chose it, how it works, and why it outperformed the alternatives.</div>
+
+    <div class="callout blue">
+      <strong>Transfer Learning Analogy:</strong> Think of it like hiring an experienced photographer who has studied a million images, and just teaching them what steel defects look like. ResNet50 already knows shapes, textures, and edges — we only teach the final classification step.
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-title">What is ResNet50 <span>BACKBONE</span></div>
+        <ul class="bullet-list">
+          <li>50-layer deep convolutional neural network</li>
+          <li>Pre-trained on ImageNet: 1M+ images, 1000 classes</li>
+          <li>Skip connections solve the vanishing gradient problem in deep networks</li>
+          <li>Frozen during Stage 1; top layers unfrozen in Stage 2</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Custom Classification Head <span>OUR LAYERS</span></div>
+        <ul class="bullet-list">
+          <li><code>GlobalAveragePooling2D</code> — compresses 7×7 feature maps to a single vector</li>
+          <li><code>Dense(256, relu)</code> — learns high-level defect feature combinations</li>
+          <li><code>Dropout(0.5)</code> — randomly disables neurons to prevent overfitting</li>
+          <li><code>Dense(6, softmax)</code> — outputs 6 class probabilities that sum to 1</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-label">Model Architecture Stack</div>
+    <div class="arch-layer">
+      <div class="arch-name">📸 Input Layer</div>
+      <div class="arch-detail">224 × 224 × 3 (RGB)</div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer highlight">
+      <div class="arch-name">🧠 ResNet50 Backbone</div>
+      <div class="arch-detail">50 layers · Pre-trained on ImageNet · Frozen in Stage 1</div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer blue">
+      <div class="arch-name">🔷 GlobalAveragePooling2D</div>
+      <div class="arch-detail">Spatial compression → 2048-dim vector</div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-name">Dense(256) + Dropout(0.5)</div>
+      <div class="arch-detail">Feature mixing · Regularisation</div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer green">
+      <div class="arch-name">✅ Dense(6, Softmax)</div>
+      <div class="arch-detail">Output: 6 class probabilities</div>
+    </div>
+
+    <div class="section-label">Model Comparison</div>
+    <table class="doc-table">
+      <thead>
+        <tr><th>Model</th><th>Test Accuracy</th><th>F1 Score</th><th>Speed</th><th>Verdict</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>ResNet50 ⭐</td><td>~98.3%</td><td>&gt;0.98</td><td>Medium</td><td>Best accuracy; skip connections handle depth perfectly</td></tr>
+        <tr><td>MobileNetV2</td><td>~94–95%</td><td>~0.94</td><td>Fastest</td><td>Lighter model, good for edge — less accurate</td></tr>
+        <tr><td>VGG16</td><td>~91–93%</td><td>~0.91</td><td>Slowest</td><td>Oldest of three, heaviest, lowest accuracy here</td></tr>
+      </tbody>
+    </table>
+
+    <div class="speech-box">
+      We didn't build a model from scratch. We used ResNet50 — already trained on over a million images. Think of it like hiring an experienced photographer and just teaching them what steel defects look like. We removed ResNet's original classification head and attached our own 6-class head on top. Our comparison showed ResNet50 outperformed both VGG16 and MobileNetV2 on this dataset.
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Training & Evaluation -->
+  <div class="slide" data-slide="4">
+    <div class="glow"></div>
+    <div class="slide-eyebrow">P4 · Training & Evaluation</div>
+    <div class="slide-title">Training Story &<br><em>Results + Debugging</em></div>
+    <div class="slide-subtitle">Two-stage training, smart callbacks, and the debugging journey that took accuracy from ~65% to 98.3%.</div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-title">Stage 1 — Warm-Up <span>FROZEN</span></div>
+        <ul class="bullet-list">
+          <li>ResNet50 backbone frozen — weights untouched</li>
+          <li>Only the custom head layers are trained</li>
+          <li>Higher learning rate: <code>1e-3</code></li>
+          <li>Goal: train the new head without corrupting ImageNet features</li>
+          <li>~10–15 epochs until head converges</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Stage 2 — Fine-Tuning <span>UNFROZEN</span></div>
+        <ul class="bullet-list">
+          <li>Top ResNet layers unfrozen — full model trains together</li>
+          <li>Very low learning rate: <code>1e-5</code></li>
+          <li>Adapts deep features to steel defect textures</li>
+          <li>Must use low LR to avoid destroying pre-trained weights</li>
+          <li>Where accuracy jumps to 98.3%</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-label">Training Callbacks</div>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-icon">🛑</span>
+        <div class="card-title">EarlyStopping</div>
+        <div class="card-body">Monitors val_loss. Stops training automatically if no improvement for N epochs. Prevents overfitting and wasted compute.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">📉</span>
+        <div class="card-title">ReduceLROnPlateau</div>
+        <div class="card-body">Detects when training stalls and automatically reduces the learning rate by a factor. Helps the model escape flat regions.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">💾</span>
+        <div class="card-title">ModelCheckpoint</div>
+        <div class="card-body">Saves the model weights only when val_accuracy improves. Guarantees the final saved model is the best-ever checkpoint.</div>
+      </div>
+    </div>
+
+    <div class="section-label">Debugging Journey — From 65% to 98%</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Problem: Grayscale images fed as-is</div>
+          <div class="step-body">ResNet50 expects 3-channel RGB. Grayscale images were duplicated across channels but normalization was misaligned. Accuracy stuck at ~65%.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Fix: Correct preprocessing pipeline</div>
+          <div class="step-body">Matched exact normalization to ResNet50's expected input range. Added CLAHE preprocessing. Accuracy jumped to ~90%+.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Fix: Two-stage fine-tuning</div>
+          <div class="step-body">Added Stage 2 with very low LR (1e-5) to fine-tune top ResNet layers on steel textures. Accuracy reached 98.3%.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <strong>Final Results:</strong> 98.3% test accuracy · F1 score &gt; 0.98 across all 6 classes · Near-perfect diagonal in confusion matrix · Adam optimizer with categorical cross-entropy loss
+    </div>
+
+    <div class="speech-box">
+      Training happened in two stages. First we trained only our custom layers with ResNet frozen. Then we unfroze the top layers and fine-tuned everything with a very low learning rate. Our initial accuracy was around 65% — after fixing the preprocessing pipeline and adding two-stage fine-tuning, it rose to 98.3%. The callbacks automatically stopped training when improvement plateaued and saved only the best weights.
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Results, Grad-CAM & Future Scope -->
+  <div class="slide" data-slide="5">
+    <div class="glow"></div>
+    <div class="slide-eyebrow">P5 · Results, Grad-CAM & Future Scope</div>
+    <div class="slide-title">Demo · Explainability &<br><em>Closing Impact</em></div>
+    <div class="slide-subtitle">Final results, how Grad-CAM makes the AI trustworthy, industrial deployment potential, and what comes next.</div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num">98.3%</div>
+        <div class="stat-label">Test Accuracy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">&gt;0.98</div>
+        <div class="stat-label">F1 Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">6/6</div>
+        <div class="stat-label">Classes Perfect</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">&lt;100ms</div>
+        <div class="stat-label">Inference Time</div>
+      </div>
+    </div>
+
+    <div class="section-label">Grad-CAM Explainability</div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-title">What is Grad-CAM? <span>EXPLAINABILITY</span></div>
+        <ul class="bullet-list">
+          <li>Uses mathematical gradients to find which parts of the image most influenced the decision</li>
+          <li>Gradients computed at the last convolutional layer of ResNet50</li>
+          <li>Renders as a red-yellow-green heatmap overlay on the original image</li>
+          <li>Heatmap concentrates on the actual defect, not the background</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Why It Matters <span>TRUST</span></div>
+        <ul class="bullet-list">
+          <li>A factory engineer can verify the AI's reasoning visually before acting</li>
+          <li>Proves the model learned real defect patterns — not spurious correlations</li>
+          <li>Differentiates this system from a black-box classifier</li>
+          <li>Satisfies explainability requirements for industrial deployment</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-label">Prediction Pipeline</div>
+    <div class="pipeline">
+      <div class="pipe-step"><div class="pipe-box"><div class="pipe-icon">📸</div><div class="pipe-label">Steel Image</div><div class="pipe-sub">JPG / PNG</div></div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="pipe-box"><div class="pipe-icon">🔧</div><div class="pipe-label">Preprocess</div><div class="pipe-sub">224×224 RGB</div></div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="pipe-box"><div class="pipe-icon">🧠</div><div class="pipe-label">ResNet50</div><div class="pipe-sub">50 Layers</div></div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="pipe-box"><div class="pipe-icon">🎯</div><div class="pipe-label">Classify</div><div class="pipe-sub">6 Classes</div></div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="pipe-box"><div class="pipe-icon">🌡️</div><div class="pipe-label">Grad-CAM</div><div class="pipe-sub">Heatmap</div></div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="pipe-box"><div class="pipe-icon">✅</div><div class="pipe-label">Result</div><div class="pipe-sub">Class + Conf%</div></div></div>
+    </div>
+
+    <div class="section-label">Future Scope</div>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-icon">⚡</span>
+        <div class="card-title">Real-Time Deployment</div>
+        <div class="card-body">Integrate with factory camera feed for live inspection on the production line. Sub-100ms inference makes this feasible.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">📱</span>
+        <div class="card-title">TFLite Edge Devices</div>
+        <div class="card-body">Convert to TensorFlow Lite for deployment on edge hardware directly on the factory floor — no cloud required.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">🗺️</span>
+        <div class="card-title">Segmentation</div>
+        <div class="card-body">Upgrade from classification to pixel-level segmentation to precisely measure defect size, area, and severity.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">📊</span>
+        <div class="card-title">Dashboard</div>
+        <div class="card-body">Build a factory analytics dashboard showing defect trends, batch quality scores, and alerts for quality engineers.</div>
+      </div>
+    </div>
+
+    <div class="speech-box">
+      Our model achieved 98.3% accuracy and outperformed both other models we tested. But most importantly, it explains its decisions. Grad-CAM shows exactly where in the image the AI found the defect — you can see the heatmap concentrating on the crack pattern, not the background. This is what makes it suitable for real industrial use. A factory engineer can verify the AI's reasoning visually before acting on it.
+    </div>
+  </div>
+
+</div><!-- /slide-wrapper -->
+
+<!-- ── NAV ARROWS ──────────────────────────────────────── -->
+<div class="nav-arrows">
+  <button class="arrow-btn" id="btnPrev" onclick="prevSlide()" disabled>←</button>
+  <button class="arrow-btn" id="btnNext" onclick="nextSlide()">→</button>
+</div>
+
+<!-- ── KEYBOARD HINT ──────────────────────────────────── -->
+<div class="kbd-hint">
+  <kbd class="kbd">←</kbd><kbd class="kbd">→</kbd> arrow keys to navigate
+</div>
+
+<script>
+  const TOTAL = 5;
+  let current = 1;
+  let animating = false;
+
+  function goTo(target) {
+    if (animating || target === current || target < 1 || target > TOTAL) return;
+    animating = true;
+
+    const currentSlide = document.querySelector(`.slide[data-slide="${current}"]`);
+    const targetSlide  = document.querySelector(`.slide[data-slide="${target}"]`);
+
+    const goingForward = target > current;
+
+    // Set up target starting position
+    targetSlide.style.transition = 'none';
+    targetSlide.style.opacity = '0';
+    targetSlide.style.transform = goingForward ? 'translateX(60px)' : 'translateX(-60px)';
+    targetSlide.classList.add('active');
+
+    // Force reflow
+    targetSlide.offsetHeight;
+
+    // Animate both slides
+    targetSlide.style.transition = '';
+    targetSlide.style.opacity = '1';
+    targetSlide.style.transform = 'translateX(0)';
+
+    currentSlide.style.opacity = '0';
+    currentSlide.style.transform = goingForward ? 'translateX(-60px)' : 'translateX(60px)';
+
+    setTimeout(() => {
+      currentSlide.classList.remove('active');
+      currentSlide.style.opacity = '';
+      currentSlide.style.transform = '';
+      targetSlide.style.opacity = '';
+      targetSlide.style.transform = '';
+      targetSlide.scrollTop = 0;
+      current = target;
+      animating = false;
+      updateUI();
+    }, 360);
+  }
+
+  function nextSlide() { goTo(current + 1); }
+  function prevSlide() { goTo(current - 1); }
+
+  function updateUI() {
+    const pct = Math.round((current / TOTAL) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('slideNumDisplay').textContent = String(current).padStart(2, '0');
+    document.getElementById('btnPrev').disabled = current === 1;
+    document.getElementById('btnNext').disabled = current === TOTAL;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prevSlide();
+  });
+
+  updateUI();
+</script>
+</body>
+</html>
