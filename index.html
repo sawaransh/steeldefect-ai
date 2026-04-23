@@ -1047,9 +1047,9 @@
 
   <div class="sidebar-nav" id="navLinks">
     <div class="nav-section">Getting Started</div>
-    <a class="nav-item active" onclick="showSection('overview')">
+    <!-- <a class="nav-item active" onclick="showSection('overview')">
       <span class="nav-dot"></span> Project Overview
-    </a>
+    </a> -->
     <a class="nav-item" onclick="showSection('structure')">
       <span class="nav-dot"></span> File Structure
     </a>
@@ -1068,9 +1068,6 @@
     <div class="nav-section">Concepts</div>
     <a class="nav-item" onclick="showSection('dlconcepts')">
       <span class="nav-dot"></span> Deep Learning Basics
-    </a>
-    <a class="nav-item" onclick="showSection('model')">
-      <span class="nav-dot"></span> Model — ResNet50
     </a>
 
     <div class="nav-section">Presentation</div>
@@ -1139,107 +1136,6 @@
     </div>
   </div>
 
-  <section class="section active" id="sec-overview">
-    <div class="section-header">
-      <div class="section-num">01 / OVERVIEW</div>
-      <div class="section-title">What Does This Project Do?</div>
-      <p class="section-desc">Understand the project in plain simple language — no technical knowledge needed.</p>
-    </div>
-
-    <div class="callout blue">
-      <strong>Simple Explanation:</strong> This project is an AI system that looks at a photo of a steel plate and tells you exactly what kind of surface defect it has — and shows you WHERE the defect is using a colour heatmap.
-    </div>
-
-    <h2>The Problem It Solves</h2>
-    <div class="card-grid">
-      <div class="card">
-        <span class="card-icon">😴</span>
-        <div class="card-title">Human Fatigue</div>
-        <div class="card-body">Human inspectors get tired checking thousands of plates daily. Fatigue causes missed defects that reach customers.</div>
-      </div>
-      <div class="card">
-        <span class="card-icon">🐢</span>
-        <div class="card-title">Slow Speed</div>
-        <div class="card-body">Manual inspection limits how many plates can be checked per hour. AI checks each image in under 100 milliseconds.</div>
-      </div>
-      <div class="card">
-        <span class="card-icon">❓</span>
-        <div class="card-title">No Explanation</div>
-        <div class="card-body">Most AI models give answers without showing why. Our Grad-CAM shows exactly which part of the image triggered the decision.</div>
-      </div>
-      <div class="card">
-        <span class="card-icon">💸</span>
-        <div class="card-title">High Cost</div>
-        <div class="card-body">Defective products that pass inspection cause costly recalls and safety hazards. AI provides consistent 98.3% accuracy.</div>
-      </div>
-    </div>
-
-    <h2>Input → Output</h2>
-    <div class="pipeline">
-      <div class="pipe-step">
-        <div class="pipe-box">
-          <div class="pipe-icon">📸</div>
-          <div class="pipe-label">Steel Image</div>
-          <div class="pipe-sub">JPG / PNG</div>
-        </div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step">
-        <div class="pipe-box">
-          <div class="pipe-icon">🔧</div>
-          <div class="pipe-label">Preprocess</div>
-          <div class="pipe-sub">224×224 RGB</div>
-        </div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step">
-        <div class="pipe-box">
-          <div class="pipe-icon">🧠</div>
-          <div class="pipe-label">ResNet50</div>
-          <div class="pipe-sub">50 Layers</div>
-        </div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step">
-        <div class="pipe-box">
-          <div class="pipe-icon">🎯</div>
-          <div class="pipe-label">Classify</div>
-          <div class="pipe-sub">6 Classes</div>
-        </div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step">
-        <div class="pipe-box">
-          <div class="pipe-icon">🌡️</div>
-          <div class="pipe-label">Grad-CAM</div>
-          <div class="pipe-sub">Heatmap</div>
-        </div>
-      </div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step">
-        <div class="pipe-box">
-          <div class="pipe-icon">✅</div>
-          <div class="pipe-label">Result</div>
-          <div class="pipe-sub">Class + Conf%</div>
-        </div>
-      </div>
-    </div>
-
-    <h2>The 6 Defect Classes</h2>
-    <table class="doc-table">
-      <thead>
-        <tr><th>Class Name</th><th>What It Looks Like</th><th>Real World Risk</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>crazing</td><td>Network of fine crack lines across the surface</td><td>Structural weakness, fracture risk</td></tr>
-        <tr><td>inclusion</td><td>Foreign material embedded inside the steel</td><td>Contamination, reduced strength</td></tr>
-        <tr><td>patches</td><td>Irregular blotchy discolored regions</td><td>Corrosion vulnerability</td></tr>
-        <tr><td>pitted_surface</td><td>Small holes or pits across the surface</td><td>Stress concentration points</td></tr>
-        <tr><td>rolled-in_scale</td><td>Dark patches from oxidized steel during rolling</td><td>Surface quality failure</td></tr>
-        <tr><td>scratches</td><td>Linear marks from mechanical contact</td><td>Surface damage, cosmetic failure</td></tr>
-      </tbody>
-    </table>
-  </section>
 
   <!-- ══════════════════════════════════════════ -->
   <!-- SECTION: FILE STRUCTURE                   -->
@@ -1450,7 +1346,6 @@ prints: "Predicted class: crazing | Confidence: 0.9731"</pre>
     <div class="section-header">
       <div class="section-num">04 / CODE EXPLAINED</div>
       <div class="section-title">Line by Line Breakdown</div>
-      <p class="section-desc">Every important code block explained in plain language — why each line exists.</p>
     </div>
 
     <h2>config.py — Settings</h2>
@@ -1679,89 +1574,6 @@ heatmap = tf.<span class="cn">maximum</span>(heatmap, <span class="cs">0</span>)
       <strong>Why we need it:</strong> Without activation functions, stacking 50 layers would just be one giant multiplication — still a straight line. ReLU adds non-linearity, giving the network the ability to learn curved, complex decision boundaries.<br><br>
       <strong>Where used:</strong> After every Dense layer in our custom head: <code>Dense(256, activation="relu")</code>
     </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SECTION: MODEL                            -->
-  <!-- ══════════════════════════════════════════ -->
-  <section class="section" id="sec-model">
-    <div class="section-header">
-      <div class="section-num">07 / MODEL</div>
-      <div class="section-title">ResNet50 Architecture</div>
-      <p class="section-desc">Why ResNet50, how it works, and what makes it better than other options.</p>
-    </div>
-
-    <h2>Architecture Diagram</h2>
-    <div class="arch-diagram">
-      <div class="arch-layer blue">
-        <span class="arch-layer-name">📸 Input</span>
-        <span class="arch-layer-detail">224 × 224 × 3</span>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-layer">
-        <span class="arch-layer-name">🏗️ ResNet50 Backbone</span>
-        <span class="arch-layer-detail">Frozen in Stage 1</span>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-layer">
-        <span class="arch-layer-name">🔗 Skip Connections</span>
-        <span class="arch-layer-detail">16 Residual Blocks</span>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-layer highlight">
-        <span class="arch-layer-name">📐 GlobalAveragePooling2D</span>
-        <span class="arch-layer-detail">7×7×2048 → 2048</span>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-layer highlight">
-        <span class="arch-layer-name">⚡ Dense 256 + ReLU</span>
-        <span class="arch-layer-detail">Custom Head</span>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-layer highlight">
-        <span class="arch-layer-name">🎲 Dropout 0.4</span>
-        <span class="arch-layer-detail">40% neurons dropped</span>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-layer green">
-        <span class="arch-layer-name">🎯 Dense 6 + Softmax</span>
-        <span class="arch-layer-detail">Output probabilities</span>
-      </div>
-    </div>
-
-    <h2>The Skip Connection Innovation</h2>
-    <div class="two-col">
-      <div class="card">
-        <span class="card-icon">❌</span>
-        <div class="card-title">Normal Deep Network Problem</div>
-        <div class="card-body">When you stack 50 layers, gradients become tiny during backpropagation — multiplied by small numbers 50 times, they vanish to near-zero. Early layers stop learning. This is the Vanishing Gradient Problem.</div>
-      </div>
-      <div class="card">
-        <span class="card-icon">✅</span>
-        <div class="card-title">ResNet's Solution</div>
-        <div class="card-body">Skip connections add a shortcut: <code>Output = Layer(Input) + Input</code>. Gradients always have a highway to travel back through. Even 50 layers deep, every layer gets meaningful gradient signals and keeps learning.</div>
-      </div>
-    </div>
-
-    <h2>Two-Stage Training Strategy</h2>
-    <div class="callout">
-      <strong>Stage 1 — Frozen Backbone:</strong> ResNet50 weights are locked. Only Dense layers train. Learning rate: 1e-4. Goal: teach the head what combination of ResNet features = each defect class.
-    </div>
-    <div class="callout green">
-      <strong>Stage 2 — Fine-Tuning:</strong> Top ResNet layers are unfrozen. Entire model trains together. Learning rate: 1e-5 (very low, to not destroy pretrained knowledge). Goal: adapt deep features specifically to steel defect textures.
-    </div>
-
-    <h2>Model Comparison</h2>
-    <table class="doc-table">
-      <thead>
-        <tr><th>Model</th><th>Test Accuracy</th><th>F1 Score</th><th>Training Speed</th><th>Why / Why Not</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>ResNet50 ⭐</td><td>~98.3%</td><td>>0.98</td><td>Medium</td><td>Best accuracy, skip connections handle depth perfectly</td></tr>
-        <tr><td>MobileNetV2</td><td>~94-95%</td><td>~0.94</td><td>Fastest</td><td>Lighter model, good for mobile/edge — less accurate</td></tr>
-        <tr><td>VGG16</td><td>~91-93%</td><td>~0.91</td><td>Slowest</td><td>Oldest of three, heaviest, lowest accuracy on this dataset</td></tr>
-      </tbody>
-    </table>
   </section>
 
   <!-- ══════════════════════════════════════════ -->
